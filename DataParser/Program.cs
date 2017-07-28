@@ -24,10 +24,10 @@ namespace DataParser
             
             // There may be more than one row with the Max sum
             var GuidsWithMaxSum = inputData.Where(x => (int.Parse(x.Val1) + int.Parse(x.Val2)) == largestSum);
-            
-            // Output
-                        Console.WriteLine(string.Format("There are  {0} records in the input file", inputData.Count()));
 
+            // Output
+            Console.WriteLine();
+            Console.WriteLine(string.Format("There are  {0} records in the input file", inputData.Count()));
             Console.WriteLine(string.Format("The largest sum of Val1 and Val2 is {0:N0}", largestSum));
 
             Console.WriteLine();
@@ -39,8 +39,9 @@ namespace DataParser
 
             Console.WriteLine();
             var avgLenth = inputData.Average(x => x.Val3.Length);
-            Console.WriteLine(string.Format("The average length of Val3 for the entire input file is {0}", avgLenth));
-            
+            Console.WriteLine(string.Format("The average length of Val3 for the input file is {0}", avgLenth));
+            Console.WriteLine();
+
             var duplicateGuids = inputData.GroupBy(s => s.DataGuid).SelectMany(grp => grp.Skip(1)).Select(s=>s.DataGuid);
 
             if (duplicateGuids.Count() > 0)
@@ -51,8 +52,18 @@ namespace DataParser
                     Console.WriteLine(duplicateGuid);
                 }
             }
+            else
+            {
+                Console.WriteLine("There were no duplicate GUIDs.");
+            }
+
+            // Put request for Output file Path BEFORE long pause for the LINQ statement
             Console.WriteLine();
-           
+            string outputFilePath = "";
+            Console.Write("Enter the Output file path. ");
+            outputFilePath = Console.ReadLine();
+            Console.WriteLine("Genertating Output File");
+
             var outputData = inputData.Select(x => new OutputData
             {
                 DataGuid = x.DataGuid,
@@ -60,12 +71,7 @@ namespace DataParser
                 IsDuplicateGuid = duplicateGuids.Contains(x.DataGuid),
                 Val3LengthGreaterThanAverage = x.Val3.Length > avgLenth
             }).ToList();
-
-            string outputFilePath = "";
-            Console.Write("Enter the Output file path. ");
-            outputFilePath = Console.ReadLine();
-            Console.WriteLine("Genertating Output File");
-
+            
             DPServices.SaveOutputFile(outputFilePath, outputData);
 
             Console.WriteLine("File Generated. Press any key to continue.");
